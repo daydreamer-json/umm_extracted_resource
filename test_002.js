@@ -24,5 +24,6 @@ const CONFIG = {
 
 fs.readFile(`db/meta_json/a_ondemand.json`, 'utf8', function (err, dataRaw) {
   const data = JSON.parse(dataRaw);
-  console.log(data.map((l) => l.n).filter((item) => item.startsWith('sound/b')));
+  // console.log(data.map((l) => l.n).filter((item) => item.startsWith('sound/b')));
+  console.log(data.filter((item) => item.n.startsWith('sound/b')));
 });

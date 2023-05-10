@@ -294,6 +294,34 @@ function outputInternalAsset () {
   });
 }
 
+function copySpecifiedAsset (nameStartsWith) {
+  logger.debug(`Checking for the existence of 'db/meta_json/a.json' ...`);
+  fs.exists(`db/meta_json/a.json`, (exists) => {
+    if (exists) {
+      logger.debug(`'db/meta_json/a.json' file found`);
+      logger.debug(`Loading database json ...`);
+      fs.readFile(`db/meta_json/a.json`, 'utf8', function (err, dataRaw) {
+        let database = JSON.parse(dataRaw);
+        logger.debug(`Searching required assets ...`);
+        let filteredDatabase = database.filter((item) => item.n.startsWith(nameStartsWith));
+        filteredDatabase.forEach(obj => {
+          let srcPath = path.join(CONFIG.assetInitialPath, 'dat', obj.h.slice(0,2), obj.h);
+          let destPath = path.join(CONFIG.assetRenameOutputPath, obj.n);
+          fs.mkdir(`${path.dirname(destPath)}`, {recursive: true}, (err) => {
+            if (err) throw err;
+            logger.debug(`Copying '${obj.n}' ...`);
+            fs.copyFile(srcPath, destPath, (err) => {
+              if (err) throw err;
+            });
+          });
+        });
+      });
+    } else {
+      logger.error(`'db/meta_json/a.json' file not found`);
+    }
+  });
+}
+
 function showErrorMsg (id) {
   const errorMsgList = {
     '0001': 'Invalid command',
@@ -314,6 +342,12 @@ if (arg.length === 0) {
       showErrorMsg('0002');
     } else {
       saveDatabaseTableToJsonFile(arg[1]);
+    }
+  } else if (arg[0] === 'copySpecifiedAsset') {
+    if (arg.length === 1) {
+      showErrorMsg('0002');
+    } else {
+      copySpecifiedAsset(arg[1]);
     }
   } else if (arg[0] === 'saveAllDatabaseTableToJsonFile') {
     saveAllDatabaseTableToJsonFile();
