@@ -35,9 +35,10 @@ function showHelpMsg () {
     'saveAllDatabaseTableToJsonFile',
     'saveAllMasterDatabaseTableToJsonFile',
     'outputOndemandAsset',
-    'outputInternalAsset'
+    'outputInternalAsset',
+    'copySpecifiedAsset'
   ];
-  console.log(`\nUsage: node ${path.basename(process.argv[1])} COMMAND [VALUE]\n\nCommands:\n  ${commandList.join('\n  ')}\n\nsaveDatabaseTableToJsonFile:\n  value: tableName`);
+  console.log(`\nUsage: node ${path.basename(process.argv[1])} COMMAND [VALUE]\n\nCommands:\n  ${commandList.join('\n  ')}\n\nsaveDatabaseTableToJsonFile:\n  value: tableName\n\ncopySpecifiedAsset:\n  value: nameStartsWith`);
 }
 
 function saveDatabaseTableToJsonFile (table) {
