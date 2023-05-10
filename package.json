@@ -1,0 +1,27 @@
+{
+  "name": "umm_extracted_resource",
+  "version": "0.0.1",
+  "description": "This repository contains certain anime game resource file.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daydreamer-json/umm_extracted_resource.git"
+  },
+  "author": "daydreamer-json",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/daydreamer-json/umm_extracted_resource/issues"
+  },
+  "homepage": "https://github.com/daydreamer-json/umm_extracted_resource#readme",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "log4js": "^6.9.1",
+    "mysql": "^2.18.1",
+    "node-fetch": "^3.3.1",
+    "request": "^2.88.2",
+    "sqlite3": "^5.1.6"
+  }
+}
