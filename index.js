@@ -19,14 +19,25 @@ logger.debug('SQLite database has been initialized');
 
 const CONFIG = {
   'assetInitialPath': 'D:\\Games\\Umamusume\\Cygames\\umamusume',
-  'assetUrlBase': 'https://prd-storage-umamusume.akamaized.net/dl/resources/Windows/assetbundles'
+  'assetUrlBase': 'https://prd-storage-umamusume.akamaized.net/dl/resources/Windows/assetbundles',
+  'assetRenameOutputPath': 'assets/'
 };
 
 // ========== Function area ==========
 
 function showHelpMsg () {
   logger.debug('Help displayed');
-  console.log(`\nUsage: node ${path.basename(process.argv[1])} COMMAND [VALUE]\n\nCommands:\n  help\n  showTableListOfDatabase\n  showTableListOfMasterDatabase\n  saveDatabaseTableToJsonFile\n  saveAllDatabaseTableToJsonFile\n  saveAllMasterDatabaseTableToJsonFile\n\nsaveDatabaseTableToJsonFile:\n  value: tableName`);
+  let commandList = [
+    'help',
+    'showTableListOfDatabase',
+    'showTableListOfMasterDatabase',
+    'saveDatabaseTableToJsonFile',
+    'saveAllDatabaseTableToJsonFile',
+    'saveAllMasterDatabaseTableToJsonFile',
+    'outputOndemandAsset',
+    'outputInternalAsset'
+  ];
+  console.log(`\nUsage: node ${path.basename(process.argv[1])} COMMAND [VALUE]\n\nCommands:\n  ${commandList.join('\n  ')}\n\nsaveDatabaseTableToJsonFile:\n  value: tableName`);
 }
 
 function saveDatabaseTableToJsonFile (table) {
@@ -219,6 +230,70 @@ function showTableListOfMasterDatabase () {
   });
 }
 
+function outputOndemandAsset () {
+  logger.debug(`Checking for the existence of 'db/meta_json/a.json' ...`);
+  fs.exists(`db/meta_json/a.json`, (exists) => {
+    if (exists) {
+      logger.debug(`'db/meta_json/a.json' file found`);
+      logger.debug(`Loading database json ...`);
+      fs.readFile(`db/meta_json/a.json`, 'utf8', function (err, dataRaw) {
+        let data = JSON.parse(dataRaw);
+        logger.debug(`Checking for the existence of 'db/meta_json/a_ondemand.json' ...`);
+        fs.exists(`db/meta_json/a_ondemand.json`, (exists) => {
+          if (exists) {
+            logger.debug(`'db/meta_json/a_ondemand.json' file found`);
+            logger.debug(`Overwriting 'db/meta_json/a_ondemand.json' file ...`);
+            fs.unlink(`db/meta_json/a_ondemand.json`, (err) => {});
+            fs.writeFile(`db/meta_json/a_ondemand.json`, JSON.stringify(data.filter((obj) => obj.s === 0)), {flag: 'a'}, (err) => {
+              if (err) throw err;
+            });
+          } else {
+            logger.debug(`'db/meta_json/a_ondemand.json' file not found`);
+            logger.debug(`Creating 'db/meta_json/a_ondemand.json' file ...`);
+            fs.writeFile(`db/meta_json/a_ondemand.json`, JSON.stringify(data.filter((obj) => obj.s === 0)), {flag: 'a'}, (err) => {
+              if (err) throw err;
+            });
+          }
+        });
+      });
+    } else {
+      logger.error(`'db/meta_json/a.json' file not found`);
+    }
+  });
+}
+
+function outputInternalAsset () {
+  logger.debug(`Checking for the existence of 'db/meta_json/a.json' ...`);
+  fs.exists(`db/meta_json/a.json`, (exists) => {
+    if (exists) {
+      logger.debug(`'db/meta_json/a.json' file found`);
+      logger.debug(`Loading database json ...`);
+      fs.readFile(`db/meta_json/a.json`, 'utf8', function (err, dataRaw) {
+        let data = JSON.parse(dataRaw);
+        logger.debug(`Checking for the existence of 'db/meta_json/a_internal.json' ...`);
+        fs.exists(`db/meta_json/a_internal.json`, (exists) => {
+          if (exists) {
+            logger.debug(`'db/meta_json/a_internal.json' file found`);
+            logger.debug(`Overwriting 'db/meta_json/a_internal.json' file ...`);
+            fs.unlink(`db/meta_json/a_internal.json`, (err) => {});
+            fs.writeFile(`db/meta_json/a_internal.json`, JSON.stringify(data.filter((obj) => obj.s === 1)), {flag: 'a'}, (err) => {
+              if (err) throw err;
+            });
+          } else {
+            logger.debug(`'db/meta_json/a_internal.json' file not found`);
+            logger.debug(`Creating 'db/meta_json/a_internal.json' file ...`);
+            fs.writeFile(`db/meta_json/a_internal.json`, JSON.stringify(data.filter((obj) => obj.s === 1)), {flag: 'a'}, (err) => {
+              if (err) throw err;
+            });
+          }
+        });
+      });
+    } else {
+      logger.error(`'db/meta_json/a.json' file not found`);
+    }
+  });
+}
+
 function showErrorMsg (id) {
   const errorMsgList = {
     '0001': 'Invalid command',
@@ -248,6 +323,10 @@ if (arg.length === 0) {
     showTableListOfDatabase();
   } else if (arg[0] === 'showTableListOfMasterDatabase') {
     showTableListOfMasterDatabase();
+  } else if (arg[0] === 'outputOndemandAsset') {
+    outputOndemandAsset();
+  } else if (arg[0] === 'outputInternalAsset') {
+    outputInternalAsset();
   } else {
     showErrorMsg('0001');
   }
