@@ -10,6 +10,7 @@ logger.debug('Loaded module: fs');
 const path = require('path');
 logger.debug('Loaded module: path');
 const { exec } = require('child_process');
+const { spawn } = require('child_process');
 logger.debug('Loaded module: child_process');
 const request = require('request');
 logger.debug('Loaded module: request');
@@ -51,7 +52,8 @@ function showHelpMsg () {
     'outputOndemandAsset',
     'outputInternalAsset',
     'copySpecifiedAsset',
-    'encodeSoundAssetAwb'
+    'encodeSoundAssetAwb',
+    'convertWavToFlacRecursive'
   ];
   console.log(`\nUsage: node ${path.basename(process.argv[1])} COMMAND [VALUE]\n\nCommands:\n  ${commandList.join('\n  ')}\n\nsaveDatabaseTableToJsonFile:\n  value: tableName\n\ncopySpecifiedAsset:\n  value: nameStartsWith\n\nencodeSoundAssetAwb:\n  value: nameStartsWith`);
 }
@@ -385,11 +387,12 @@ function encodeSoundAssetAwb (nameStartsWith) {
                           fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
                             if (err) throw err;
                             for (let i = 0; i < cli_output_parsed_stream_count; i++) {
-                              let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${i.toString().padStart(5, '0')}.wav`;
+                              let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
                               exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i} "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}"`, (err, stdout, stderr) => {
                                 if (err) {
                                   console.error(stderr);
                                 }
+                                logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
                               });
                             }
                           });
@@ -400,10 +403,40 @@ function encodeSoundAssetAwb (nameStartsWith) {
                     });
                   } else {
                     // ここにACBをWAVに変換
+                    
                   }
                 } else {
                   // ここにAWBをWAVに変えるやつを書く
                   // awbかacbの識別はしなくてよい(上で書いちゃってるからawb固定でいい)
+                  logger.debug(`Encoding '${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file ...`);
+                  exec(`bin\\vgmstream.exe -m -i -F "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
+                    let cli_output_array = stdout.split('\r\n');
+                    if (cli_output_array.filter((item) => item.startsWith('stream count: ')).length === 0) {
+                      var cli_output_parsed_stream_count = 1;
+                    } else {
+                      var cli_output_parsed_stream_count = cli_output_array.filter((item) => item.startsWith('stream count: '))[0].replace("stream count: ", "");
+                    }
+                    let cli_output_parsed_stream_name = cli_output_array.filter((item) => item.startsWith('stream name: '))[0].replace("stream name: ", "");
+                    fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
+                      if (err) throw err;
+                      for (let i = 0; i < cli_output_parsed_stream_count; i++) {
+                        let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
+                        exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i} "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
+                          if (err) {
+                            console.error(stderr);
+                          }
+                          logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
+                        });
+                        /* メモ
+                        execはプロセスの開始は非同期になるけど、終了は待たずに返してしまう
+                        spawnを使えばon exitで終了を待ってから次の処理を実行することができる
+                        ただその方法でもforEachで回すのは流石にやばい気がする
+                        on exitしたとしてもシングルタスクになってしまって高速化できないから
+                        結局無理やりマルチスレッドになっちゃうexecを使ったほうが良さそう(PCフリーズの危険性があるがしゃーない)
+                        */
+                      }
+                    });
+                  });
                 }
               } else {
                 logger.error(`'${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file not found`);
@@ -419,6 +452,23 @@ function encodeSoundAssetAwb (nameStartsWith) {
       });
     } else {
       logger.error(`'db/meta_json/a.json' file not found`);
+    }
+  });
+}
+
+function convertWavToFlacRecursive(dirPath) {
+  let files = fs.readdirSync(dirPath);
+  files.forEach((file) => {
+    let filePath = path.join(dirPath, file);
+    let stats = fs.statSync(filePath);
+    if (stats.isDirectory()) {
+      convertWavToFlacRecursive(filePath);
+    } else if (stats.isFile() && path.extname(filePath) === '.wav') {
+      let flacFilePath = filePath.replace('.wav', '.flac');
+      let flacProcess = spawn('bin\\flac.exe', ['-f', '--delete-input-file', '-V', '-l', '12', '-b', '4608', '-m', '-r', '8', '-A', 'subdivide_tukey(5)', '-o', flacFilePath, filePath]);
+      flacProcess.on('exit', (code) => {
+        logger.debug(`flac.exe exited with code ${code}`);
+      });
     }
   });
 }
@@ -455,6 +505,12 @@ if (arg.length === 0) {
       showErrorMsg('0002');
     } else {
       encodeSoundAssetAwb(arg[1]);
+    }
+  } else if (arg[0] === 'convertWavToFlacRecursive') {
+    if (arg.length === 1) {
+      showErrorMsg('0002');
+    } else {
+      convertWavToFlacRecursive(arg[1]);
     }
   } else if (arg[0] === 'saveAllDatabaseTableToJsonFile') {
     saveAllDatabaseTableToJsonFile();
