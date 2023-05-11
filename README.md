@@ -1,6 +1,6 @@
-<h1><center>umm_extracted_resource</center></h1>
+<div align="center"><h1>umm_extracted_resource</h1></div>
 
-<center><img src="https://img.shields.io/github/repo-size/daydreamer-json/umm_extracted_resource?label=Total%20File%20Size&style=flat-square"></center>
+<div align="center"><img src="https://img.shields.io/github/repo-size/daydreamer-json/umm_extracted_resource?label=Total%20File%20Size&style=flat-square"></div>
 
 ---
 
