@@ -23,8 +23,8 @@ logger.debug('SQLite database has been initialized');
 const CONFIG = {
   'assetInitialPath': 'D:\\Games\\Umamusume\\Cygames\\umamusume',
   'assetUrlBase': 'https://prd-storage-umamusume.akamaized.net/dl/resources/Windows/assetbundles',
-  'assetRenameOutputPath': 'assets/',
-  'assetConvertedOutputPath': 'assets_converted/'
+  'assetRenameOutputPath': 'assets',
+  'assetConvertedOutputPath': 'assets_converted'
 };
 
 // ========== Base Function area ==========
@@ -36,6 +36,83 @@ function formatFileSize (bytes, decimals = 2) {
   const sizes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+function parsingVgmstreamInfoToJson (stdout, path) {
+  let stdout_array_all = new Array();
+  let output_array = new Array();
+  for (let p = 0; p < stdout.split('metadata for ').filter(Boolean).length; p++) {
+    let splitted_temp01 = stdout.split('metadata for ').filter(Boolean)[p].split('\r\n');
+    stdout_array_all.push(splitted_temp01.filter(Boolean));
+  }
+  stdout_array_all.forEach(stdout_array => {
+    let output_obj = {
+      'path': path.replace(CONFIG.assetConvertedOutputPath, '').replace(CONFIG.assetRenameOutputPath, '').replace(/^(\/|\\)/, ''),
+      'codec': null,
+      'metadataFormat': null,
+      'channels': null,
+      'channelMask': null,
+      'layout': null,
+      'sampleRate': null,
+      'bitRate': null,
+      'samples': null,
+      'durationMs': null,
+      'looping': null,
+      'loopStartSample': null,
+      'loopEndSample': null,
+      'loopStartTimeMs': null,
+      'loopEndTimeMs': null,
+      'streamName': null
+    };
+    if (stdout_array.filter((item) => item.startsWith('encoding: ')).length !== 0) {
+      output_obj.codec = stdout_array.filter((item) => item.startsWith('encoding: '))[0].replace("encoding: ", "");
+    }
+    if (stdout_array.filter((item) => item.startsWith('metadata from: ')).length !== 0) {
+      output_obj.metadataFormat = stdout_array.filter((item) => item.startsWith('metadata from: '))[0].replace("metadata from: ", "");
+    }
+    if (stdout_array.filter((item) => item.startsWith('channels: ')).length !== 0) {
+      output_obj.channels = parseFloat(stdout_array.filter((item) => item.startsWith('channels: '))[0].replace("channels: ", ""));
+    }
+    if (stdout_array.filter((item) => item.startsWith('channel mask: ')).length !== 0) {
+      output_obj.channelMask = parseInt(stdout_array.filter((item) => item.startsWith('channel mask: '))[0].replace("channel mask: ", "").replace(/ \/ .*/g, ''), 16);
+    }
+    if (stdout_array.filter((item) => item.startsWith('layout: ')).length !== 0) {
+      output_obj.layout = stdout_array.filter((item) => item.startsWith('layout: '))[0].replace("layout: ", "");
+    }
+    if (stdout_array.filter((item) => item.startsWith('sample rate: ')).length !== 0) {
+      output_obj.sampleRate = parseFloat(stdout_array.filter((item) => item.startsWith('sample rate: '))[0].replace("sample rate: ", "").replace(' Hz', ''));
+    }
+    if (stdout_array.filter((item) => item.startsWith('bitrate: ')).length !== 0) {
+      output_obj.bitRate = parseFloat(stdout_array.filter((item) => item.startsWith('bitrate: '))[0].replace("bitrate: ", "").replace(' kbps', '')) * 1000;
+    }
+    if (stdout_array.filter((item) => item.startsWith('stream total samples: ')).length !== 0) {
+      output_obj.samples = parseInt(stdout_array.filter((item) => item.startsWith('stream total samples: '))[0].replace("stream total samples: ", "").match(/\d+/g)[0]);
+      let duration_minute = parseInt(stdout_array.filter((item) => item.startsWith('stream total samples: '))[0].replace("stream total samples: ", "").match(/\d+/g)[1]);
+      let duration_second = parseInt(stdout_array.filter((item) => item.startsWith('stream total samples: '))[0].replace("stream total samples: ", "").match(/\d+/g)[2]);
+      let duration_float = parseInt(stdout_array.filter((item) => item.startsWith('stream total samples: '))[0].replace("stream total samples: ", "").match(/\d+/g)[3]);
+      output_obj.durationMs = parseInt((duration_minute * 60 + duration_second) * 1000 + duration_float);
+    }
+    if (stdout_array.filter((item) => item.startsWith('loop start: ')).length !== 0 && stdout_array.filter((item) => item.startsWith('loop end: ')).length !== 0) {
+      output_obj.loopStartSample = parseInt(stdout_array.filter((item) => item.startsWith('loop start: '))[0].replace("loop start: ", "").match(/\d+/g)[0]);
+      let duration_minute_start = parseInt(stdout_array.filter((item) => item.startsWith('loop start: '))[0].replace("loop start: ", "").match(/\d+/g)[1]);
+      let duration_second_start = parseInt(stdout_array.filter((item) => item.startsWith('loop start: '))[0].replace("loop start: ", "").match(/\d+/g)[2]);
+      let duration_float_start = parseInt(stdout_array.filter((item) => item.startsWith('loop start: '))[0].replace("loop start: ", "").match(/\d+/g)[3]);
+      output_obj.loopStartTimeMs = parseInt((duration_minute_start * 60 + duration_second_start) * 1000 + duration_float_start);
+      output_obj.loopEndSample = parseInt(stdout_array.filter((item) => item.startsWith('loop end: '))[0].replace("loop end: ", "").match(/\d+/g)[0]);
+      let duration_minute_end = parseInt(stdout_array.filter((item) => item.startsWith('loop end: '))[0].replace("loop end: ", "").match(/\d+/g)[1]);
+      let duration_second_end = parseInt(stdout_array.filter((item) => item.startsWith('loop end: '))[0].replace("loop end: ", "").match(/\d+/g)[2]);
+      let duration_float_end = parseInt(stdout_array.filter((item) => item.startsWith('loop end: '))[0].replace("loop end: ", "").match(/\d+/g)[3]);
+      output_obj.loopEndTimeMs = parseInt((duration_minute_end * 60 + duration_second_end) * 1000 + duration_float_end);
+      output_obj.looping = true;
+    } else {
+      output_obj.looping = false;
+    }
+    if (stdout_array.filter((item) => item.startsWith('stream name: ')).length !== 0) {
+      output_obj.streamName = stdout_array.filter((item) => item.startsWith('stream name: '))[0].replace("stream name: ", "");
+    }
+    output_array.push(output_obj);
+  });
+  return output_array
 }
 
 // ========== Function area ==========
@@ -53,7 +130,8 @@ function showHelpMsg () {
     'outputInternalAsset',
     'copySpecifiedAsset',
     'encodeSoundAssetAwb',
-    'convertWavToFlacRecursive'
+    'convertWavToFlacRecursive',
+    'showCriAudioMetadata'
   ];
   console.log(`\nUsage: node ${path.basename(process.argv[1])} COMMAND [VALUE]\n\nCommands:\n  ${commandList.join('\n  ')}\n\nsaveDatabaseTableToJsonFile:\n  value: tableName\n\ncopySpecifiedAsset:\n  value: nameStartsWith\n\nencodeSoundAssetAwb:\n  value: nameStartsWith`);
 }
@@ -327,9 +405,16 @@ function copySpecifiedAsset (nameStartsWith) {
           let destPath = path.join(CONFIG.assetRenameOutputPath, obj.n);
           fs.mkdir(`${path.dirname(destPath)}`, {recursive: true}, (err) => {
             if (err) throw err;
-            logger.debug(`Copying '${obj.n}' ...`);
-            fs.copyFile(srcPath, destPath, (err) => {
-              if (err) throw err;
+            logger.debug(`Checking for the existence of '${srcPath}' ...`);
+            fs.exists(`${srcPath}`, (exists) => {
+              if (exists) {
+                logger.debug(`Copying '${obj.n}' ...`);
+                fs.copyFile(srcPath, destPath, (err) => {
+                  if (err) throw err;
+                });
+              } else {
+                logger.warn(`'${srcPath}' file not found. Skipped`);
+              }
             });
           });
         });
@@ -373,28 +458,27 @@ function encodeSoundAssetAwb (nameStartsWith) {
                 if (filteredDatabaseEntryLengthFlag === 'acb') {
                   if (filteredDatabase_Awb.filter((item) => item.n === obj.n.replace(/\.acb$/, ".awb")).length > 0) {
                     logger.debug(`Checking for the existence of '${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}' ...`);
+                    // fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify())
                     fs.exists(`${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}`, (exists) => {
                       if (exists) {
                         logger.debug(`Encoding '${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}' file ...`);
-                        exec(`bin\\vgmstream.exe -m -i -F "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}"`, (err, stdout, stderr) => {
-                          let cli_output_array = stdout.split('\r\n');
-                          if (cli_output_array.filter((item) => item.startsWith('stream count: ')).length === 0) {
-                            var cli_output_parsed_stream_count = 1;
-                          } else {
-                            var cli_output_parsed_stream_count = cli_output_array.filter((item) => item.startsWith('stream count: '))[0].replace("stream count: ", "");
-                          }
-                          let cli_output_parsed_stream_name = cli_output_array.filter((item) => item.startsWith('stream name: '))[0].replace("stream name: ", "");
+                        exec(`bin\\vgmstream.exe -m -i -F -S 0 "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}"`, (err, stdout, stderr) => {
+                          let cli_output = parsingVgmstreamInfoToJson(stdout, path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb"));
                           fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
                             if (err) throw err;
-                            for (let i = 0; i < cli_output_parsed_stream_count; i++) {
+                            for (let i = 0; i < cli_output.length; i++) {
                               let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
-                              exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i} "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}"`, (err, stdout, stderr) => {
+                              exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i + 1} "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}"`, (err, stdout, stderr) => {
                                 if (err) {
                                   console.error(stderr);
                                 }
                                 logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
                               });
                             }
+                            fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify(cli_output), {flag: 'w'}, (err) => {
+                              if (err) throw err;
+                              logger.debug(`Metadata writed to '${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json' file`);
+                            });
                           });
                         });
                       } else {
@@ -403,38 +487,53 @@ function encodeSoundAssetAwb (nameStartsWith) {
                     });
                   } else {
                     // ここにACBをWAVに変換
-                    
+                    logger.debug(`Checking for the existence of '${path.join(CONFIG.assetRenameOutputPath, obj.n)}' ...`);
+                    fs.exists(`${path.join(CONFIG.assetRenameOutputPath, obj.n)}`, (exists) => {
+                      if (exists) {
+                        logger.debug(`Encoding '${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file ...`);
+                        exec(`bin\\vgmstream.exe -m -i -F -S 0 "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
+                          let cli_output = parsingVgmstreamInfoToJson(stdout, path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb"));
+                          fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
+                            if (err) throw err;
+                            for (let i = 0; i < cli_output.length; i++) {
+                              let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
+                              exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i + 1} "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
+                                if (err) {
+                                  console.error(stderr);
+                                }
+                                logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
+                              });
+                            }
+                            fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify(cli_output), {flag: 'w'}, (err) => {
+                              if (err) throw err;
+                              logger.debug(`Metadata writed to '${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json' file`);
+                            });
+                          });
+                        });
+                      } else {
+                        logger.error(`'${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file not found`);
+                      }
+                    });
                   }
                 } else {
-                  // ここにAWBをWAVに変えるやつを書く
-                  // awbかacbの識別はしなくてよい(上で書いちゃってるからawb固定でいい)
                   logger.debug(`Encoding '${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file ...`);
-                  exec(`bin\\vgmstream.exe -m -i -F "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
-                    let cli_output_array = stdout.split('\r\n');
-                    if (cli_output_array.filter((item) => item.startsWith('stream count: ')).length === 0) {
-                      var cli_output_parsed_stream_count = 1;
-                    } else {
-                      var cli_output_parsed_stream_count = cli_output_array.filter((item) => item.startsWith('stream count: '))[0].replace("stream count: ", "");
-                    }
-                    let cli_output_parsed_stream_name = cli_output_array.filter((item) => item.startsWith('stream name: '))[0].replace("stream name: ", "");
+                  exec(`bin\\vgmstream.exe -m -i -F -S 0 "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
+                    let cli_output = parsingVgmstreamInfoToJson(stdout, path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb"));
                     fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
                       if (err) throw err;
-                      for (let i = 0; i < cli_output_parsed_stream_count; i++) {
+                      for (let i = 0; i < cli_output.length; i++) {
                         let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
-                        exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i} "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
+                        exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i + 1} "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
                           if (err) {
                             console.error(stderr);
                           }
                           logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
                         });
-                        /* メモ
-                        execはプロセスの開始は非同期になるけど、終了は待たずに返してしまう
-                        spawnを使えばon exitで終了を待ってから次の処理を実行することができる
-                        ただその方法でもforEachで回すのは流石にやばい気がする
-                        on exitしたとしてもシングルタスクになってしまって高速化できないから
-                        結局無理やりマルチスレッドになっちゃうexecを使ったほうが良さそう(PCフリーズの危険性があるがしゃーない)
-                        */
                       }
+                      fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify(cli_output), {flag: 'w'}, (err) => {
+                        if (err) throw err;
+                        logger.debug(`Metadata writed to '${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json' file`);
+                      });
                     });
                   });
                 }
@@ -469,6 +568,22 @@ function convertWavToFlacRecursive(dirPath) {
       flacProcess.on('exit', (code) => {
         logger.debug(`flac.exe exited with code ${code}`);
       });
+    }
+  });
+}
+
+function showCriAudioMetadata (filepath) {
+  logger.debug(`Checking for the existence of '${path.join(filepath)}' ...`);
+  fs.exists(`${path.join(filepath)}`, (exists) => {
+    if (exists) {
+      logger.debug(`Reading metadata from '${path.join(filepath)}' ...`);
+      exec(`bin\\vgmstream.exe -m -i -F -S 0 "${path.join(filepath)}"`, (err, stdout, stderr) => {
+        let parsedMetadataJson = parsingVgmstreamInfoToJson(stdout, path.join(filepath));
+        logger.debug(`Metadata loaded`);
+        console.log(parsedMetadataJson);
+      });
+    } else {
+      logger.error(`'${path.join(filepath)}' file not found`);
     }
   });
 }
@@ -511,6 +626,12 @@ if (arg.length === 0) {
       showErrorMsg('0002');
     } else {
       convertWavToFlacRecursive(arg[1]);
+    }
+  } else if (arg[0] === 'showCriAudioMetadata') {
+    if (arg.length === 1) {
+      showErrorMsg('0002');
+    } else {
+      showCriAudioMetadata(arg[1]);
     }
   } else if (arg[0] === 'saveAllDatabaseTableToJsonFile') {
     saveAllDatabaseTableToJsonFile();

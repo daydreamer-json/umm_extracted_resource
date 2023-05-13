@@ -325,10 +325,18 @@ function copySpecifiedAsset (nameStartsWith) {
           let destPath = path.join(CONFIG.assetRenameOutputPath, obj.n);
           fs.mkdir(`${path.dirname(destPath)}`, {recursive: true}, (err) => {
             if (err) throw err;
-            logger.debug(`Copying '${obj.n}' ...`);
-            fs.copyFile(srcPath, destPath, (err) => {
-              if (err) throw err;
+            logger.debug(`Checking for the existence of '${srcPath}' ...`);
+            fs.exists(`${srcPath}`, (exists) => {
+              if (exists) {
+                logger.debug(`Copying '${obj.n}' ...`);
+                fs.copyFile(srcPath, destPath, (err) => {
+                  if (err) throw err;
+                });
+              } else {
+                logger.warn(`'${srcPath}' file not found. Skipped`);
+              }
             });
+            
           });
         });
         console.log(`Total file size = ${formatFileSize(filteredDatabase.map((l) => l.l).reduce((a,b) => a + b))} (${filteredDatabase.map((l) => l.l).reduce((a,b) => a + b)} byte)`);
