@@ -22,10 +22,14 @@ logger.debug('SQLite database has been initialized');
 
 const CONFIG = {
   'assetInitialPath': 'D:\\Games\\Umamusume\\Cygames\\umamusume',
-  'assetUrlBase': 'https://prd-storage-umamusume.akamaized.net/dl/resources/Windows/assetbundles',
+  'assetUrlBase': 'https://prd-storage-umamusume.akamaized.net/dl/resources',
   'assetRenameOutputPath': 'assets',
   'assetConvertedOutputPath': 'assets_converted'
 };
+
+// assetUrlBase specifies the base address of the asset, but the path is different if the `k` field in `meta` is greater than 10.
+// k<10 : Windows/assetbundles
+// k>=10 : Generic
 
 // ========== Base Function area ==========
 
