@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_sm013_karaoke.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":1888785,"durationMs":39350,"looping":true,"loopStartSample":142820,"loopEndSample":1888529,"loopStartTimeMs":2975,"loopEndTimeMs":39344,"streamName":"snd_bgm_SM013_Karaoke"}]

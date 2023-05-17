@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_cs016_piano.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":14023936,"durationMs":292165,"looping":true,"loopStartSample":399360,"loopEndSample":14023680,"loopStartTimeMs":8320,"loopEndTimeMs":292160,"streamName":"snd_bgm_CS016_Piano_st"}]

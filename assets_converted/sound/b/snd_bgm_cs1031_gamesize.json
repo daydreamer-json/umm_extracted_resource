@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_cs1031_gamesize.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":6234488,"durationMs":129885,"looping":true,"loopStartSample":575284,"loopEndSample":6234232,"loopStartTimeMs":11985,"loopEndTimeMs":129880,"streamName":"snd_bgm_CS1031_GameSize"}]

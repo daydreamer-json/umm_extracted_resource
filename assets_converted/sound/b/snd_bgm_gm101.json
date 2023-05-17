@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm101.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":1484272,"durationMs":30922,"looping":true,"loopStartSample":1408066,"loopEndSample":1484016,"loopStartTimeMs":29335,"loopEndTimeMs":30917,"streamName":"snd_bgm_GM101_jingle; snd_bgm_GM101_jingle_st"}]

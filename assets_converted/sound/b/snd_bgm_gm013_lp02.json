@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm013_lp02.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":8412846,"durationMs":175268,"looping":true,"loopStartSample":52457,"loopEndSample":8412590,"loopStartTimeMs":1093,"loopEndTimeMs":175262,"streamName":"snd_bgm_GM013_Lp02; snd_bgm_GM013_Lp02_st"}]

@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm102_dry.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":4363558,"durationMs":90907,"looping":true,"loopStartSample":368640,"loopEndSample":4363302,"loopStartTimeMs":7680,"loopEndTimeMs":90902,"streamName":"snd_bgm_GM102_dry; snd_bgm_GM102_dry_st"}]

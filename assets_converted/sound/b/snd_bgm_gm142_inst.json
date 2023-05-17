@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm142_inst.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":5605510,"durationMs":116781,"looping":true,"loopStartSample":0,"loopEndSample":5605254,"loopStartTimeMs":0,"loopEndTimeMs":116776,"streamName":"snd_bgm_GM142_Inst; snd_bgm_GM142_Inst_st"}]

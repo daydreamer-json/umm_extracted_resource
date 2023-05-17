@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm280.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":6120643,"durationMs":127513,"looping":true,"loopStartSample":457163,"loopEndSample":6120387,"loopStartTimeMs":9524,"loopEndTimeMs":127508,"streamName":"snd_bgm_GM280; snd_bgm_GM280_st"}]

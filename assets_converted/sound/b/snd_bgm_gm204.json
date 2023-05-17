@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm204.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":14845952,"durationMs":309291,"looping":true,"loopStartSample":318464,"loopEndSample":14845696,"loopStartTimeMs":6635,"loopEndTimeMs":309285,"streamName":"snd_bgm_GM204; snd_bgm_GM204_st"}]

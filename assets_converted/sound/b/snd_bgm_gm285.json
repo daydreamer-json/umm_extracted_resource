@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm285.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":2854376,"durationMs":59466,"looping":true,"loopStartSample":340432,"loopEndSample":2854120,"loopStartTimeMs":7092,"loopEndTimeMs":59461,"streamName":"snd_bgm_GM285; snd_bgm_GM285_sys"}]

@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_fx002_amb_pc.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":468288,"durationMs":9756,"looping":true,"loopStartSample":170747,"loopEndSample":468032,"loopStartTimeMs":3557,"loopEndTimeMs":9751,"streamName":"snd_bgm_FX002_amb_PC_st"}]

@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_am212.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":7657344,"durationMs":159528,"looping":true,"loopStartSample":498580,"loopEndSample":7657073,"loopStartTimeMs":10387,"loopEndTimeMs":159522,"streamName":"snd_bgm_AM212; snd_bgm_AM212_st"}]

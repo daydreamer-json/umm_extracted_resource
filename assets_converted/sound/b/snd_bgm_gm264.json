@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm264.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":9892096,"durationMs":206085,"looping":true,"loopStartSample":203520,"loopEndSample":9891840,"loopStartTimeMs":4240,"loopEndTimeMs":206080,"streamName":"snd_bgm_GM264; snd_bgm_GM264_st"}]

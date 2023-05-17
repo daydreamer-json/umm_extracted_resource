@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm205.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":4007680,"durationMs":83493,"looping":true,"loopStartSample":1330368,"loopEndSample":4007424,"loopStartTimeMs":27716,"loopEndTimeMs":83488,"streamName":"snd_bgm_GM205; snd_bgm_GM205_st"}]

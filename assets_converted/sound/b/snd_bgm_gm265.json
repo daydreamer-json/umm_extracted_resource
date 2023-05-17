@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm265.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":5345248,"durationMs":111359,"looping":true,"loopStartSample":1755136,"loopEndSample":5344992,"loopStartTimeMs":36565,"loopEndTimeMs":111354,"streamName":"snd_bgm_GM265; snd_bgm_GM265_st"}]

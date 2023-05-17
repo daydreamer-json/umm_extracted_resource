@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm192_perc.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":3812128,"durationMs":79419,"looping":true,"loopStartSample":178688,"loopEndSample":3811872,"loopStartTimeMs":3723,"loopEndTimeMs":79414,"streamName":"snd_bgm_GM192_perc; snd_bgm_GM192_perc_st"}]

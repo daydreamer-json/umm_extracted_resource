@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm200.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":7833369,"durationMs":163195,"looping":true,"loopStartSample":729087,"loopEndSample":7833113,"loopStartTimeMs":15189,"loopEndTimeMs":163190,"streamName":"snd_bgm_GM200_race_full"}]

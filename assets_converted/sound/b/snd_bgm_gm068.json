@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm068.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":4080705,"durationMs":85015,"looping":true,"loopStartSample":240608,"loopEndSample":4080449,"loopStartTimeMs":5013,"loopEndTimeMs":85009,"streamName":"snd_bgm_GM068_roulette"}]

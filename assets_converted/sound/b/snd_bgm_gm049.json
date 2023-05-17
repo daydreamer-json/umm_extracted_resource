@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm049.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":1265989,"durationMs":26375,"looping":true,"loopStartSample":947940,"loopEndSample":1265733,"loopStartTimeMs":19749,"loopEndTimeMs":26369,"streamName":"snd_bgm_GM049; snd_bgm_GM049_sys"}]

@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_sh002_cb.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":6126585,"durationMs":127637,"looping":true,"loopStartSample":367097,"loopEndSample":6126329,"loopStartTimeMs":7648,"loopEndTimeMs":127632,"streamName":"snd_bgm_SH002_cb_paddock01"}]

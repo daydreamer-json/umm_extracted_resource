@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_cs1062_short.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":2079116,"durationMs":43315,"looping":true,"loopStartSample":82061,"loopEndSample":2078860,"loopStartTimeMs":1710,"loopEndTimeMs":43310,"streamName":"snd_bgm_CS1062_Short"}]

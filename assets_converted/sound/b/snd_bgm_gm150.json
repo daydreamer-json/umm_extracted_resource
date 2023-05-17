@@ -1,0 +1,1 @@
+[{"path":"sound\\b\\snd_bgm_gm150.awb","codec":"CRI HCA","metadataFormat":"CRI HCA header","channels":2,"channelMask":3,"layout":"flat","sampleRate":48000,"bitRate":192000,"samples":8917376,"durationMs":185779,"looping":true,"loopStartSample":671038,"loopEndSample":8917120,"loopStartTimeMs":13980,"loopEndTimeMs":185773,"streamName":"snd_bgm_GM150; snd_bgm_GM150_st"}]
