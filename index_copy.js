@@ -23,6 +23,8 @@ logger.debug('SQLite database has been initialized');
 const CONFIG = {
   'assetInitialPath': 'D:\\Games\\Umamusume\\Cygames\\umamusume',
   'assetUrlBase': 'https://prd-storage-umamusume.akamaized.net/dl/resources',
+  'assetUrlPathUnique': 'Windows/assetbundles',
+  'assetUrlPathCompatible': 'Generic',
   'assetRenameOutputPath': 'assets',
   'assetConvertedOutputPath': 'assets_converted'
 };
@@ -418,6 +420,7 @@ function copySpecifiedAsset (nameStartsWith) {
                 });
               } else {
                 logger.warn(`'${srcPath}' file not found. Skipped`);
+                
               }
             });
           });
@@ -432,6 +435,7 @@ function copySpecifiedAsset (nameStartsWith) {
 
 function encodeSoundAssetAwb (nameStartsWith) {
   logger.debug(`Checking for the existence of 'db/meta_json/a.json' ...`);
+  let obj_missingFileCount = 0;
   fs.exists(`db/meta_json/a.json`, (exists) => {
     if (exists) {
       logger.debug(`'db/meta_json/a.json' file found`);
@@ -465,28 +469,39 @@ function encodeSoundAssetAwb (nameStartsWith) {
                     // fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify())
                     fs.exists(`${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}`, (exists) => {
                       if (exists) {
-                        logger.debug(`Encoding '${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}' file ...`);
-                        exec(`bin\\vgmstream.exe -m -i -F -S 0 "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}"`, (err, stdout, stderr) => {
-                          let cli_output = parsingVgmstreamInfoToJson(stdout, path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb"));
-                          fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
-                            if (err) throw err;
-                            for (let i = 0; i < cli_output.length; i++) {
-                              let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
-                              exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i + 1} "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}"`, (err, stdout, stderr) => {
-                                if (err) {
-                                  console.error(stderr);
-                                }
-                                logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
-                              });
-                            }
-                            fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify(cli_output), {flag: 'w'}, (err) => {
+                        if (obj_missingFileCount === 0) {
+                          logger.debug(`Encoding '${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}' file ...`);
+                          exec(`bin\\vgmstream.exe -m -i -F -S 0 "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}"`, (err, stdout, stderr) => {
+                            let cli_output = parsingVgmstreamInfoToJson(stdout, path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb"));
+                            fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
                               if (err) throw err;
-                              logger.debug(`Metadata writed to '${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json' file`);
+                              for (let i = 0; i < cli_output.length; i++) {
+                                let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
+                                exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i + 1} "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}"`, (err, stdout, stderr) => {
+                                  if (err) {
+                                    console.error(stderr);
+                                  }
+                                  logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
+                                });
+                              }
+                              fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify(cli_output), {flag: 'w'}, (err) => {
+                                if (err) throw err;
+                                logger.debug(`Metadata writed to '${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json' file`);
+                              });
                             });
                           });
-                        });
+                        }
                       } else {
                         logger.error(`'${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}' file not found`);
+                        //! curlコマンド出力部
+                        if (obj.k >= 10) {
+                          console.log(`curl -Lo "${path.join(CONFIG.assetRenameOutputPath, obj.n)}" "${CONFIG.assetUrlBase}/${CONFIG.assetUrlPathCompatible}/${obj.h.slice(0,2)}/${obj.h}"`);
+                          console.log(`curl -Lo "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}" "${CONFIG.assetUrlBase}/${CONFIG.assetUrlPathCompatible}/${filteredDatabase_Awb.filter((item) => item.n === obj.n.replace(/\.acb$/, ".awb"))[0].h.slice(0,2)}/${filteredDatabase_Awb.filter((item) => item.n === obj.n.replace(/\.acb$/, ".awb"))[0].h}"`);
+                        } else {
+                          console.log(`curl -Lo "${path.join(CONFIG.assetRenameOutputPath, obj.n)}" "${CONFIG.assetUrlBase}/${CONFIG.assetUrlPathUnique}/${obj.h.slice(0,2)}/${obj.h}"`);
+                          console.log(`curl -Lo "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb")}" "${CONFIG.assetUrlBase}/${CONFIG.assetUrlPathUnique}/${filteredDatabase_Awb.filter((item) => item.n === obj.n.replace(/\.acb$/, ".awb"))[0].h.slice(0,2)}/${filteredDatabase_Awb.filter((item) => item.n === obj.n.replace(/\.acb$/, ".awb"))[0].h}"`);
+                        }
+                        obj_missingFileCount += 1;
                       }
                     });
                   } else {
@@ -494,55 +509,75 @@ function encodeSoundAssetAwb (nameStartsWith) {
                     logger.debug(`Checking for the existence of '${path.join(CONFIG.assetRenameOutputPath, obj.n)}' ...`);
                     fs.exists(`${path.join(CONFIG.assetRenameOutputPath, obj.n)}`, (exists) => {
                       if (exists) {
-                        logger.debug(`Encoding '${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file ...`);
-                        exec(`bin\\vgmstream.exe -m -i -F -S 0 "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
-                          let cli_output = parsingVgmstreamInfoToJson(stdout, path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb"));
-                          fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
-                            if (err) throw err;
-                            for (let i = 0; i < cli_output.length; i++) {
-                              let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
-                              exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i + 1} "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
-                                if (err) {
-                                  console.error(stderr);
-                                }
-                                logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
-                              });
-                            }
-                            fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify(cli_output), {flag: 'w'}, (err) => {
+                        if (obj_missingFileCount === 0) {
+                          logger.debug(`Encoding '${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file ...`);
+                          exec(`bin\\vgmstream.exe -m -i -F -S 0 "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
+                            let cli_output = parsingVgmstreamInfoToJson(stdout, path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb"));
+                            fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
                               if (err) throw err;
-                              logger.debug(`Metadata writed to '${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json' file`);
+                              for (let i = 0; i < cli_output.length; i++) {
+                                let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
+                                exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i + 1} "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
+                                  if (err) {
+                                    console.error(stderr);
+                                  }
+                                  logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
+                                });
+                              }
+                              fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify(cli_output), {flag: 'w'}, (err) => {
+                                if (err) throw err;
+                                logger.debug(`Metadata writed to '${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json' file`);
+                              });
                             });
                           });
-                        });
+                        }
                       } else {
                         logger.error(`'${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file not found`);
+                        //! curlコマンド出力部
+                        if (obj.k >= 10) {
+                          console.log(`curl -Lo "${path.join(CONFIG.assetRenameOutputPath, obj.n)}" "${CONFIG.assetUrlBase}/${CONFIG.assetUrlPathCompatible}/${obj.h.slice(0,2)}/${obj.h}"`);
+                        } else {
+                          console.log(`curl -Lo "${path.join(CONFIG.assetRenameOutputPath, obj.n)}" "${CONFIG.assetUrlBase}/${CONFIG.assetUrlPathUnique}/${obj.h.slice(0,2)}/${obj.h}"`);
+                        }
+                        obj_missingFileCount += 1;
                       }
                     });
                   }
                 } else {
-                  logger.debug(`Encoding '${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file ...`);
-                  exec(`bin\\vgmstream.exe -m -i -F -S 0 "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
-                    let cli_output = parsingVgmstreamInfoToJson(stdout, path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb"));
-                    fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
-                      if (err) throw err;
-                      for (let i = 0; i < cli_output.length; i++) {
-                        let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
-                        exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i + 1} "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
-                          if (err) {
-                            console.error(stderr);
-                          }
-                          logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
-                        });
-                      }
-                      fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify(cli_output), {flag: 'w'}, (err) => {
+                  if (obj_missingFileCount === 0) {
+                    logger.debug(`Encoding '${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file ...`);
+                    exec(`bin\\vgmstream.exe -m -i -F -S 0 "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
+                      let cli_output = parsingVgmstreamInfoToJson(stdout, path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.acb$/, ".awb"));
+                      fs.mkdir(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}`, {recursive: true}, (err) => {
                         if (err) throw err;
-                        logger.debug(`Metadata writed to '${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json' file`);
+                        for (let i = 0; i < cli_output.length; i++) {
+                          let outputEncodedFileName = `${path.basename(obj.n, path.extname(obj.n))}_${(i + 1).toString().padStart(5, '0')}.wav`;
+                          exec(`bin\\vgmstream.exe -o "${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)}" -i -F -s ${i + 1} "${path.join(CONFIG.assetRenameOutputPath, obj.n)}"`, (err, stdout, stderr) => {
+                            if (err) {
+                              console.error(stderr);
+                            }
+                            logger.debug(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)), outputEncodedFileName)} encoded`);
+                          });
+                        }
+                        fs.writeFile(`${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json`, JSON.stringify(cli_output), {flag: 'w'}, (err) => {
+                          if (err) throw err;
+                          logger.debug(`Metadata writed to '${path.join(CONFIG.assetConvertedOutputPath, path.dirname(obj.n), path.basename(obj.n, path.extname(obj.n)))}.json' file`);
+                        });
                       });
                     });
-                  });
+                  }
                 }
               } else {
                 logger.error(`'${path.join(CONFIG.assetRenameOutputPath, obj.n)}' file not found`);
+                //! curlコマンド出力部
+                if (obj.k >= 10) {
+                  console.log(`curl -Lo "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.awb$/, ".acb")}" "${CONFIG.assetUrlBase}/${CONFIG.assetUrlPathCompatible}/${filteredDatabase_Acb.filter((item) => item.n === obj.n.replace(/\.awb$/, ".acb"))[0].h.slice(0,2)}/${filteredDatabase_Acb.filter((item) => item.n === obj.n.replace(/\.awb$/, ".acb"))[0].h}"`);
+                  console.log(`curl -Lo "${path.join(CONFIG.assetRenameOutputPath, obj.n)}" "${CONFIG.assetUrlBase}/${CONFIG.assetUrlPathCompatible}/${obj.h.slice(0,2)}/${obj.h}"`);
+                } else {
+                  console.log(`curl -Lo "${path.join(CONFIG.assetRenameOutputPath, obj.n).replace(/\.awb$/, ".acb")}" "${CONFIG.assetUrlBase}/${CONFIG.assetUrlPathUnique}/${filteredDatabase_Acb.filter((item) => item.n === obj.n.replace(/\.awb$/, ".acb"))[0].h.slice(0,2)}/${filteredDatabase_Acb.filter((item) => item.n === obj.n.replace(/\.awb$/, ".acb"))[0].h}"`);
+                  console.log(`curl -Lo "${path.join(CONFIG.assetRenameOutputPath, obj.n)}" "${CONFIG.assetUrlBase}/${CONFIG.assetUrlPathUnique}/${obj.h.slice(0,2)}/${obj.h}"`);
+                }
+                obj_missingFileCount += 1;
               }
             });
           } else {
